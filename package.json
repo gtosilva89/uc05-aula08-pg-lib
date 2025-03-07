@@ -17,6 +17,7 @@
     "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@codeea/scanner": "^1.0.3"
+    "@codeea/scanner": "^1.0.3",
+    "pg-promise": "^11.10.2"
   }
 }
