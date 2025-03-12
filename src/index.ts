@@ -1,13 +1,11 @@
 import Scanner from "@codeea/scanner";
-import pgp from "pg-promise";
+import { Database } from "./database";
+import { AlunoRepository } from "./repository/aluno.repository";
+import { Aluno } from "./model/Aluno";
 
 const scanner = new Scanner();
-
-// Criar um objeto de conexão com o banco
-const connectionString =
-  "postgres://postgres:password@localhost:5432/matriculas_db";
-
-const connection = pgp()(connectionString);
+const database = new Database();
+const alunoRepository = new AlunoRepository(database);
 
 async function main() {
   // CRUD
@@ -28,68 +26,168 @@ async function main() {
       10 - Criar Aluno
       11 - Listar Alunos
       12 - Atualizar Dados Aluno
-      13 - Excluir Aluno\n
+      14 - Excluir Aluno\n
+
+      0-Sair\n
       `);
     comando = await scanner.questionInt("Informe o comando:");
     switch (comando) {
       case 10:
-        createAluno();
+        await createAluno();
         break;
-
+      case 11:
+        await getAlunos();
+        break;
+      case 12:
+        await updateAluno();
+        break;
+      case 13:
+        console.log("Opção Inválida");
+        break;
+      case 14:
+        await deleteAluno();
+        break;
       default:
         break;
     }
   } while (comando > 0);
 }
 
+async function inputDataAluno(): Promise<Aluno> {
+  const nome = await scanner.question("Nome Completo: ");
+  const dataNascimento = await scanner.question(
+    "Data Nascimento (ex: 12/11/1990): "
+  );
+  const cpf = await scanner.question("CPF: ");
+  const telefone = await scanner.question("Telefone: ");
+  const sexo = await scanner.question("Sexo (M-Masculino/F-Feminino): ");
+  const email = await scanner.question("Email: ");
+  const escolaridade = await scanner.question("Nível Escolaridade: ");
+  const renda = await scanner.questionFloat("Renda: ");
+  const pcd = await scanner.question("É PCD? (S-Sim/N-Não): ");
+
+  const [dia, mes, ano] = dataNascimento.split("/");
+
+  return {
+    nome,
+    dataNascimento: new Date(`${mes}/${dia}/${ano}`),
+    cpf,
+    telefone,
+    sexo: sexo.charAt(0),
+    email,
+    escolaridade,
+    renda,
+    pcd: pcd.toUpperCase() === "S",
+  };
+}
+
+// CRUD - (C)reate
 async function createAluno() {
   try {
     // Usando o scanner, vamos obter os dados do aluno para inserir
 
     // ENTRADA
     console.log("A seguir, informe os dados do aluno: \n");
-    const nome = await scanner.question("Nome Completo: ");
-    const dataNascimento = await scanner.question(
-      "Data Nascimento (ex: 12/11/1990): "
-    );
-    const cpf = await scanner.question("CPF: ");
-    const telefone = await scanner.question("Telefone: ");
-    const sexo = await scanner.question("Sexo (M-Masculino/F-Feminino): ");
-    const email = await scanner.question("Email: ");
-    const escolaridade = await scanner.question("Nível Escolaridade: ");
-    const renda = await scanner.questionFloat("Renda: ");
-    const pcd = await scanner.question("É PCD? (S-Sim/N-Não): ");
+    const aluno = await inputDataAluno();
+
+    // PROCESSAMENTO
+    await alunoRepository.createAluno(aluno);
+
+    // SAÍDA
+    await getAlunos();
+  } catch (error) {
+    // Imprime o erro
+    console.log(error);
+  }
+}
+
+// CRUD - (R)etrieve
+async function getAlunos() {
+  // Busca os dados no banco
+  const results = await alunoRepository.getAll();
+
+  // Imprime os dados
+  console.log(results);
+}
+
+async function getAlunoById(id: Number): Promise<any> {
+  // Busca os dados no banco
+  const results = await database.query("select * from alunos where id = $1", [
+    id,
+  ]);
+
+  // Imprime os dados
+  console.log(results);
+}
+
+// CRUD - (U)pdate
+async function updateAluno() {
+  try {
+    // Usando o scanner, vamos obter os dados do aluno para inserir
+
+    // ENTRADA
+    console.log("A seguir, informe os dados do aluno a ser atualizado: \n");
+    const id = await scanner.questionInt("Informe o id do aluno: ");
+    if (!id) {
+      console.log("Informe o ID do aluno");
+      return;
+    }
+
+    const aluno = await inputDataAluno();
 
     // Monta a query de inserção
-    const queryInsertAlunos = `
-      insert into alunos (nome, data_nascimento, cpf,
-        telefone, sexo, email, escolaridade, renda, pcd)
-      values ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+    const statementUpdateAlunos = `
+      update alunos set
+        nome = $1,
+        data_nascimento = $2,
+        cpf = $3,
+        telefone = $4,
+        sexo = $5,
+        email = $6,
+        escolaridade = $7,
+        renda = $8,
+        pcd = $9
+      where id = $10
     `;
 
     // PROCESSAMENTO
 
-    const [dia, mes, ano] = dataNascimento.split("/");
-    const dataNascimentoISO = new Date(`${mes}/${dia}/${ano}`).toUTCString();
     // Insere os dados no banco
-    await connection.query(queryInsertAlunos, [
-      nome,
-      dataNascimentoISO,
-      cpf,
-      telefone,
-      sexo.charAt(0),
-      email,
-      escolaridade,
-      renda,
-      pcd.toUpperCase() === "S",
+    await database.query(statementUpdateAlunos, [
+      aluno.nome,
+      aluno.dataNascimento,
+      aluno.cpf,
+      aluno.telefone,
+      aluno.sexo,
+      aluno.email,
+      aluno.escolaridade,
+      aluno.renda,
+      aluno.pcd,
+      id,
     ]);
 
     // SAÍDA
-    // Busca os dados no banco
-    const results = await connection.query("select id, nome, cpf from alunos");
+    const alunoAtualizado = await getAlunoById(id);
+    console.log(alunoAtualizado);
+  } catch (error) {
+    // Imprime o erro
+    console.log(error);
+  }
+}
 
-    // Imprime os dados
-    console.log(results);
+async function deleteAluno(): Promise<void> {
+  try {
+    console.log("A seguir, informe os dados do aluno a ser excluído: \n");
+    const id = await scanner.questionInt("Informe o id do aluno: ");
+    if (!id) {
+      console.log("Informe o ID do aluno");
+      return;
+    }
+    // Monta a query de exclusão
+    const statementDeleteAlunos = `
+      delete from alunos where id = $1
+    `;
+    await database.query(statementDeleteAlunos, [id]);
   } catch (error) {
     // Imprime o erro
     console.log(error);
@@ -99,4 +197,5 @@ async function createAluno() {
 (async () => {
   await main();
   scanner.close();
+  await database.closeConnection();
 })();
