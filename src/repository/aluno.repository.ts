@@ -1,4 +1,4 @@
-import { Aluno } from "../model/Aluno";
+import { Aluno } from "../model/aluno";
 
 export class AlunoRepository {
   private database: any;
