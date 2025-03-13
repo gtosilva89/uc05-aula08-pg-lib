@@ -8,7 +8,7 @@ export class AlunoService {
     this.repository = repository;
   }
 
-  async createAluno(aluno: Aluno) {
+  async createAluno(aluno: Aluno): Promise<Aluno> {
     return await this.repository.createAluno(aluno);
   }
 }

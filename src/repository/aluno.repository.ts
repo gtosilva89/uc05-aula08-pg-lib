@@ -7,17 +7,14 @@ export class AlunoRepository {
     this.database = database;
   }
 
-  async createAluno(aluno: Aluno): Promise<void> {
+  async createAluno(aluno: Aluno): Promise<Aluno> {
     const queryInsertAlunos = `
-    insert into alunos (nome, data_nascimento, cpf,
-      telefone, sexo, email, escolaridade, renda, pcd)
-    values ($1, $2, $3, $4, $5, $6, $7, $8, $9);
-  `;
+      insert into alunos (nome, data_nascimento, cpf,
+        telefone, sexo, email, escolaridade, renda, pcd)
+      values ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;
+    `;
 
-    // PROCESSAMENTO
-
-    // Insere os dados no banco
-    await this.database.query(queryInsertAlunos, [
+    const result = await this.database.one(queryInsertAlunos, [
       aluno.nome,
       aluno.dataNascimento,
       aluno.cpf,
@@ -28,6 +25,11 @@ export class AlunoRepository {
       aluno.renda,
       aluno.pcd,
     ]);
+
+    return {
+      id: result.id,
+      ...aluno,
+    };
   }
 
   async getAll(): Promise<[]> {
