@@ -1,7 +1,7 @@
 import express, { Router } from "express";
-import { AlunoController } from "../controller/aluno.controller";
-import { AlunoRepository } from "../repository/aluno.repository";
-import { AlunoService } from "../service/aluno.service";
+import { AlunoController } from "./aluno.controller";
+import { AlunoRepository } from "./aluno.repository";
+import { AlunoService } from "./aluno.service";
 
 export class AlunoRoutes {
   private database: any;

@@ -1,10 +1,7 @@
 import express, { Express, Response } from "express";
 import cors from "cors";
-import { AlunoRoutes } from "./routes/aluno.routes";
-import { Database } from "./database";
-import { AlunoRepository } from "./repository/aluno.repository";
-import { AlunoService } from "./service/aluno.service";
-import { AlunoController } from "./controller/aluno.controller";
+import { AlunoRoutes } from "./aluno/aluno.routes";
+import { Database } from "./shared/database";
 
 class App {
   private readonly PORT = 3000;
@@ -28,7 +25,7 @@ class App {
     this._app.get("/health", (_, res: Response) => {
       res.send({ status: "OK" });
     });
-    
+
     const alunoRoutes = new AlunoRoutes(this.database);
 
     this._app.use("/alunos", alunoRoutes.getRouter());

@@ -1,5 +1,5 @@
-import { Aluno } from "../model/aluno";
-import { AlunoRepository } from "../repository/aluno.repository";
+import { Aluno } from "../shared/model/aluno";
+import { AlunoRepository } from "./aluno.repository";
 
 export class AlunoService {
   private repository: AlunoRepository;

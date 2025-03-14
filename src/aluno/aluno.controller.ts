@@ -1,5 +1,5 @@
-import { Aluno } from "../model/aluno";
-import { AlunoService } from "../service/aluno.service";
+import { Aluno } from "../shared/model/aluno";
+import { AlunoService } from "./aluno.service";
 import { Request, Response } from "express";
 
 export class AlunoController {
