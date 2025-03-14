@@ -8,11 +8,10 @@ export class AlunoRepository {
   }
 
   async create(aluno: Aluno): Promise<Aluno> {
-    const queryInsertAlunos = `
-      insert into alunos (nome, data_nascimento, cpf,
-        telefone, sexo, email, escolaridade, renda, pcd)
-      values ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;
-    `;
+    const queryInsertAlunos =
+    `insert into alunos (nome, data_nascimento, cpf,
+    telefone, sexo, email, escolaridade, renda, pcd)
+    values ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;`;
 
     const result = await this.database.one(queryInsertAlunos, [
       aluno.nome,
@@ -34,12 +33,16 @@ export class AlunoRepository {
 
   async getAll(): Promise<Aluno[]> {
     const result = await this.database.query(
-      `select nome, data_nascimento, cpf,
-           telefone, sexo, email, escolaridade,
-           renda, pcd
-       from alunos`,
-      []
-    );
+      `select
+      nome,
+      data_nascimento,
+      cpf,
+      telefone,
+      sexo,
+      email,
+      escolaridade,
+      renda,
+      pcd from alunos`,[]);
     if (result.length === 0) {
       return [];
     }
@@ -59,13 +62,17 @@ export class AlunoRepository {
 
   async getById(id: number): Promise<Aluno | undefined> {
     const [result] = await this.database.query(
-      `select nome, data_nascimento, cpf,
-           telefone, sexo, email, escolaridade,
-           renda, pcd
-       from alunos
-       where id = $1`,
-      [id]
-    );
+      `select
+      nome,
+      data_nascimento,
+      cpf,
+      telefone,
+      sexo,
+      email,
+      escolaridade,
+      renda,
+      pcd
+      from alunos where id = $1`,[id]);
     if (!result) return;
     return {
       id,
@@ -85,18 +92,17 @@ export class AlunoRepository {
     try {
       // Monta a query de update
       const statementUpdateAluno = `
-        update alunos set
-          nome = $1,
-          data_nascimento = $2,
-          cpf = $3,
-          telefone = $4,
-          sexo = $5,
-          email = $6,
-          escolaridade = $7,
-          renda = $8,
-          pcd = $9
-        where id = $10
-      `;
+      update alunos set
+      nome = $1,
+      data_nascimento = $2,
+      cpf = $3,
+      telefone = $4,
+      sexo = $5,
+      email = $6,
+      escolaridade = $7,
+      renda = $8,
+      pcd = $9
+      where id = $10`;
       await this.database.query(statementUpdateAluno, [
         aluno.nome,
         aluno.dataNascimento,
