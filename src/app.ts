@@ -1,7 +1,9 @@
 import express, { Express, Response } from "express";
 import cors from "cors";
 import { AlunoRoutes } from "./aluno/aluno.routes";
+import { InstrutorRoutes } from "./instrutor/instrutor.routes";
 import { Database } from "./shared/database";
+
 
 class App {
   private readonly PORT = 3000;
@@ -27,8 +29,10 @@ class App {
     });
 
     const alunoRoutes = new AlunoRoutes(this.database);
-
     this._app.use("/alunos", alunoRoutes.getRouter());
+
+    const instrutorRoutes = new InstrutorRoutes(this.database);
+    this._app.use("/instrutores", instrutorRoutes.getRouter());
   }
 
   public start() {

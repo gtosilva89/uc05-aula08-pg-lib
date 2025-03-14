@@ -8,11 +8,16 @@ export class InstrutorRepository {
   }
 
   async create(instrutor: Instrutor): Promise<Instrutor> {
-    const queryInsertInstrutores =
-    `insert into instrutores (nome, cpf, data_nascimento,
-    matricula, sexo, email, data_admissao, data_desligamento)
+    const queryInsertInstrutores = `insert into instrutores
+    (nome,
+    cpf,
+    data_nascimento,
+    matricula,
+    sexo,
+    email,
+    data_admissao,
+    data_desligamento)
     values ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`;
-
     const result = await this.database.one(queryInsertInstrutores, [
       instrutor.nome,
       instrutor.cpf,
@@ -41,9 +46,9 @@ export class InstrutorRepository {
       email,
       data_admissao,
       data_desligamento
-      from instrutores`,[]);
+      from instrutores`[]);
     if (result.length === 0) {
-      return[];
+      return;
     }
     return result.map((instrutor: any) => ({
       id: instrutor.id,

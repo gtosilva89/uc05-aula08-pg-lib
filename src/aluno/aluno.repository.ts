@@ -8,11 +8,17 @@ export class AlunoRepository {
   }
 
   async create(aluno: Aluno): Promise<Aluno> {
-    const queryInsertAlunos =
-    `insert into alunos (nome, data_nascimento, cpf,
-    telefone, sexo, email, escolaridade, renda, pcd)
+    const queryInsertAlunos = `insert into alunos
+    (nome,
+    data_nascimento,
+    cpf,
+    telefone,
+    sexo,
+    email,
+    escolaridade,
+    renda,
+    pcd)
     values ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;`;
-
     const result = await this.database.one(queryInsertAlunos, [
       aluno.nome,
       aluno.dataNascimento,
@@ -42,7 +48,9 @@ export class AlunoRepository {
       email,
       escolaridade,
       renda,
-      pcd from alunos`,[]);
+      pcd from alunos`,
+      []
+    );
     if (result.length === 0) {
       return [];
     }
@@ -72,7 +80,9 @@ export class AlunoRepository {
       escolaridade,
       renda,
       pcd
-      from alunos where id = $1`,[id]);
+      from alunos where id = $1`,
+      [id]
+    );
     if (!result) return;
     return {
       id,
