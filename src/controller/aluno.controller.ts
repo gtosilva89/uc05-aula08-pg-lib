@@ -17,107 +17,148 @@ export class AlunoController {
       // PROCESSAMENTO
       const novoAluno = await this.service.createAluno(aluno);
       // SAÍDA
-      res.status(200).send(novoAluno);
+      res.status(201).send(novoAluno);
     } catch (error) {
       // Imprime o erro
-      console.log(error);
+      console.log("Error - AlunoController>createAluno", error);
+      res.status(500).send({ error: true, message: error });
     }
   }
 
   // CRUD - (R)etrieve
-  // async getAlunos() {
-  //   // Busca os dados no banco
-  //   // TODO
-  //   const results = await alunoRepository.getAll();
+  async getAlunos(_: Request, res: Response) {
+    try {
+      // Busca os dados no banco
+      const alunos = await this.service.getAll();
+      // Retorna os dados
+      res.status(200).send(alunos);
+    } catch (error) {
+      console.log("Error - AlunoController>getAlunos", error);
+      res.status(500).send({ error: true, message: error });
+    }
+  }
 
-  //   // Imprime os dados
-  //   console.log(results);
-  // }
+  async getAlunoById(req: Request<{ id: string }>, res: Response) {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        res.status(400).send({ error: true, message: "Informe o ID do aluno" });
+        return;
+      }
+      const alunoId = parseInt(id);
+      if (isNaN(alunoId)) {
+        res.status(400).send({ error: true, message: "Informe um ID válido" });
+        return;
+      }
 
-  // async getAlunoById(id: Number): Promise<any> {
-  //   // Busca os dados no banco
-  //   // TODO
-  //   const results = await database.query("select * from alunos where id = $1", [
-  //     id,
-  //   ]);
+      // Busca os dados no banco
+      const aluno = await this.service.getById(alunoId);
+      if (!aluno) {
+        res.status(404).send({ error: true, message: "Aluno não encontrado" });
+        return;
+      }
 
-  //   // Imprime os dados
-  //   console.log(results);
-  // }
+      // Retorna os dados
+      res.status(200).send(aluno);
+    } catch (error) {
+      console.log("Error - AlunoController>getAlunoById", error);
+      res.status(500).send({ error: true, message: error });
+    }
+  }
 
-  // // CRUD - (U)pdate
-  // async updateAluno() {
-  //   try {
-  //     // Usando o scanner, vamos obter os dados do aluno para inserir
+  // CRUD - (U)pdate
+  async updatePartOfAluno(
+    req: Request<{ id: string }, {}, Aluno>,
+    res: Response
+  ) {
+    try {
+      // Pega o id dos parametros de rota
+      const { id } = req.params;
+      // Valida se o id foi informado
+      if (!id) {
+        res.status(400).send({ error: true, message: "Informe o ID do aluno" });
+        return;
+      }
+      // Converte o id para number
+      const alunoId = parseInt(id);
+      // Valida se é um número
+      if (isNaN(alunoId)) {
+        res.status(400).send({ error: true, message: "Informe um ID válido" });
+        return;
+      }
+      // Pegar os dados do aluno
+      const aluno = req.body;
+      // Chama o service para atualizar o aluno
+      await this.service.updateAluno(alunoId, aluno);
+      // Busca os dados atualizados do aluno e retorna
+      const alunoAtualizado = await this.service.getById(alunoId);
+      res.status(200).send(alunoAtualizado);
+    } catch (error) {
+      console.log("Error - AlunoController>updateAluno", error);
+      res.status(500).send({ error: true, message: error });
+    }
+  }
 
-  //     // ENTRADA
-  //     console.log("A seguir, informe os dados do aluno a ser atualizado: \n");
-  //     const id = await this.scanner.questionInt("Informe o id do aluno: ");
-  //     if (!id) {
-  //       console.log("Informe o ID do aluno");
-  //       return;
-  //     }
+  async updateAllFieldsAluno(
+    req: Request<{ id: string }, {}, Aluno>,
+    res: Response
+  ) {
+    try {
+      // Pega o id dos parametros de rota
+      const { id } = req.params;
+      // Valida se o id foi informado
+      if (!id) {
+        res.status(400).send({ error: true, message: "Informe o ID do aluno" });
+        return;
+      }
+      // Converte o id para number
+      const alunoId = parseInt(id);
+      // Valida se é um número
+      if (isNaN(alunoId)) {
+        res.status(400).send({ error: true, message: "Informe um ID válido" });
+        return;
+      }
+      // Pegar os dados do aluno
+      const aluno = req.body;
+      // Chama o service para atualizar o aluno
+      await this.service.updateAluno(alunoId, aluno);
 
-  //     const aluno = await this.inputDataAluno();
+      const alunoAtualizado = await this.service.getById(alunoId);
+      res.status(200).send(alunoAtualizado);
+      console.log(alunoAtualizado);
+    } catch (error) {
+      console.log("Error - AlunoController>updateAluno", error);
+      res.status(500).send({ error: true, message: error });
+    }
+  }
 
-  //     // Monta a query de inserção
-  //     const statementUpdateAlunos = `
-  //       update alunos set
-  //         nome = $1,
-  //         data_nascimento = $2,
-  //         cpf = $3,
-  //         telefone = $4,
-  //         sexo = $5,
-  //         email = $6,
-  //         escolaridade = $7,
-  //         renda = $8,
-  //         pcd = $9
-  //       where id = $10
-  //     `;
-
-  //     // PROCESSAMENTO
-
-  //     // Insere os dados no banco
-  //     // TODO
-  //     await database.query(statementUpdateAlunos, [
-  //       aluno.nome,
-  //       aluno.dataNascimento,
-  //       aluno.cpf,
-  //       aluno.telefone,
-  //       aluno.sexo,
-  //       aluno.email,
-  //       aluno.escolaridade,
-  //       aluno.renda,
-  //       aluno.pcd,
-  //       id,
-  //     ]);
-
-  //     // SAÍDA
-  //     // TODO
-  //     const alunoAtualizado = await getAlunoById(id);
-  //     console.log(alunoAtualizado);
-  //   } catch (error) {
-  //     // Imprime o erro
-  //     console.log(error);
-  //   }
-  // }
-
-  // async deleteAluno(): Promise<void> {
-  //   try {
-  //     console.log("A seguir, informe os dados do aluno a ser excluído: \n");
-  //     const id = await this.scanner.questionInt("Informe o id do aluno: ");
-  //     if (!id) {
-  //       console.log("Informe o ID do aluno");
-  //       return;
-  //     }
-  //     // Monta a query de exclusão
-  //     const statementDeleteAlunos = `
-  //       delete from alunos where id = $1
-  //     `;
-  //     await database.query(statementDeleteAlunos, [id]);
-  //   } catch (error) {
-  //     // Imprime o erro
-  //     console.log(error);
-  //   }
-  // }
+  async deleteAluno(req: Request<{ id: string }, {}, Aluno>, res: Response) {
+    try {
+      // Pega o id dos parametros de rota
+      const { id } = req.params;
+      // Valida se o id foi informado
+      if (!id) {
+        res.status(400).send({ error: true, message: "Informe o ID do aluno" });
+        return;
+      }
+      // Converte o id para number
+      const alunoId = parseInt(id);
+      // Valida se é um número
+      if (isNaN(alunoId)) {
+        res.status(400).send({ error: true, message: "Informe um ID válido" });
+        return;
+      }
+      // Pegar os dados do aluno
+      const aluno = req.body;
+      // Chama o service para atualizar o aluno
+      await this.service.deleteAluno(alunoId);
+      res.status(200).send();
+    } catch (error) {
+      console.log("Error - AlunoController>deleteAluno", error);
+      res.status(500).send({
+        error: true,
+        message: "Internal Error",
+      });
+    }
+  }
 }

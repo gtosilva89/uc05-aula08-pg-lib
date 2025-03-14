@@ -6,7 +6,6 @@ import { app } from "./app";
     app.start();
   } catch (error) {
     console.log(error);
-  } finally {
-    app.stop();
   }
+  // await app.stop();
 })();
