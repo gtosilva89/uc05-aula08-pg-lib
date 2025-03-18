@@ -47,10 +47,11 @@ export class InstrutorRepository {
       data_admissao,
       data_desligamento
       from instrutores`,
-      []);
-    if (result.length === 0) {
-      return;
-    }
+      []
+    );
+    // if (result.length === 0) {
+    //   return;
+    // }
     return result.map((instrutor: any) => ({
       id: instrutor.id,
       nome: instrutor.nome,
@@ -75,7 +76,9 @@ export class InstrutorRepository {
       email,
       data_admissao,
       data_desligamento
-      from instrutores where id = $1`,[id]);
+      from instrutores where id = $1`,
+      [id]
+    );
     if (!result) return;
     return {
       id,

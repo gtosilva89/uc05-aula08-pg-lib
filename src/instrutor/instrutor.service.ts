@@ -12,7 +12,7 @@ export class InstrutorService {
         return await this.repository.create(instrutor);
     }
 
-    async getAll(): Promise<Instrutor> {
+    async getAll(): Promise<Instrutor[]> {
         return await this.repository.getAll();
     }
 
