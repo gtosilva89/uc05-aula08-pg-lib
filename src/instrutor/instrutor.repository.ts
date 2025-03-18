@@ -35,7 +35,7 @@ export class InstrutorRepository {
     };
   }
 
-  async getAll(): Promise<Instrutor> {
+  async getAll(): Promise<Instrutor[]> {
     const result = await this.database.query(
       `select
       nome,
@@ -46,7 +46,8 @@ export class InstrutorRepository {
       email,
       data_admissao,
       data_desligamento
-      from instrutores`[]);
+      from instrutores`,
+      []);
     if (result.length === 0) {
       return;
     }
